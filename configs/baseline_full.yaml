@@ -1,0 +1,17 @@
+# Proposed first full baseline. Do not modify during a run; copy into runs/<run_id>/.
+model_config: configs/baseline_20m.yaml
+dataset_mode: full
+dataset_revision: f54c09fd23315a6f9c86f9dc80f725de7d8f9c64
+tokenizer_artifact: artifacts/tokenizers/tinystories_bpe_32k/tokenizer.json
+sequence_length: 512
+training_tokens: 200000000
+micro_batch_size: 4
+gradient_accumulation: 8
+learning_rate: 0.0003
+weight_decay: 0.1
+warmup_steps: 500
+precision: bf16_if_supported_else_fp16
+gradient_clip_norm: 1.0
+seed: 42
+checkpoint_interval_steps: 500
+evaluation_interval_steps: 500

@@ -1,0 +1,21 @@
+# Phase 1 baseline architecture. Changes require a fresh parameter-count check.
+model:
+  vocab_size: 32000
+  d_model: 320
+  n_layers: 6
+  n_heads: 5
+  head_dim: 64
+  ffn_dim: 1280
+  context_length: 512
+  rope_theta: 10000.0
+  rms_norm_eps: 0.00001
+  dropout: 0.0
+  tie_embeddings: true
+  attention_bias: false
+  mlp_bias: false
+
+parameter_count:
+  target: 20000000
+  # ±500k (2.5%) allows a comparable variant while rejecting material drift.
+  tolerance: 500000
+

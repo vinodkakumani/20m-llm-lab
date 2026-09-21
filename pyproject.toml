@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llm-research-lab"
+version = "0.1.0"
+description = "A reproducible educational small-language-model research project."
+requires-python = ">=3.10"
+dependencies = [
+    "PyYAML>=6.0,<7",
+    "datasets==5.0.1",
+    "matplotlib==3.11.2",
+    "tokenizers==0.23.2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8,<9",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

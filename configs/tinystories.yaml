@@ -1,0 +1,11 @@
+dataset:
+  repo_id: roneneldan/TinyStories
+  revision: f54c09fd23315a6f9c86f9dc80f725de7d8f9c64
+  text_field: text
+  train_split: train
+  validation_split: validation
+  sequence_length: 512
+  modes:
+    smoke: {train_examples: 128, validation_examples: 32}
+    development: {train_examples: 10000, validation_examples: 1000}
+    full: {train_examples: null, validation_examples: null}

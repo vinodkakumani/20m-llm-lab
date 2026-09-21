@@ -1,0 +1,11 @@
+model_config: configs/baseline_20m.yaml
+dataset_mode: development
+device: auto
+precision: auto
+micro_batch_size: 4
+gradient_accumulation_steps: 8
+max_grad_norm: 1.0
+optimizer_steps: 100
+checkpoint_interval_steps: 25
+evaluation_interval_steps: 25
+seed: 42
