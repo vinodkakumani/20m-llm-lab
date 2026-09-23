@@ -31,7 +31,8 @@ def run_smoke_training(model_config_path, dataset_path, config=SmokeTrainingConf
     torch.manual_seed(config.seed); model_config=load_baseline_config(model_config_path).model; runtime=resolve_runtime(config.device,config.precision)
     model=BaselineTransformer(model_config).to(runtime.device); dataset=PackedTokenDataset(dataset_path,model_config.context_length)
     if len(dataset)==0: raise ValueError("Dataset contains no complete packed sequences.")
-    loader=DataLoader(dataset,batch_size=config.micro_batch_size,shuffle=False); optimizer=build_adamw(model,config.learning_rate,config.weight_decay); scheduler=build_cosine_scheduler(optimizer,config.warmup_steps,config.max_steps); scaler=make_scaler(runtime)
+    if len(dataset) < config.micro_batch_size: raise ValueError("Dataset has fewer complete sequences than micro_batch_size.")
+    loader=DataLoader(dataset,batch_size=config.micro_batch_size,shuffle=False,drop_last=True); optimizer=build_adamw(model,config.learning_rate,config.weight_decay); scheduler=build_cosine_scheduler(optimizer,config.warmup_steps,config.max_steps); scaler=make_scaler(runtime)
     start_step=load_checkpoint(resume,model,optimizer,scheduler,runtime.device,scaler) if resume else 0
     if run_dir and not resume: initialize_run(run_dir,model_config,config)
     metrics=[]; iterator=iter(loader)
@@ -56,6 +57,7 @@ def main():
     p=argparse.ArgumentParser(); p.add_argument("--model-config",type=Path,default=Path("configs/baseline_20m.yaml")); p.add_argument("--dataset",type=Path,required=True); p.add_argument("--steps",type=int,default=2); p.add_argument("--micro-batch",type=int,default=1); p.add_argument("--accumulation",type=int,default=1); p.add_argument("--device",default="auto"); p.add_argument("--precision",default="auto"); p.add_argument("--runs-root",type=Path,default=Path("runs")); p.add_argument("--run-name",default="smoke"); p.add_argument("--resume",type=Path); a=p.parse_args()
     run_dir=a.resume.parents[1] if a.resume else create_run_directory(a.runs_root,a.run_name)
     metrics=run_smoke_training(a.model_config,a.dataset,SmokeTrainingConfig(max_steps=a.steps,micro_batch_size=a.micro_batch,gradient_accumulation_steps=a.accumulation,device=a.device,precision=a.precision),run_dir,a.resume)
-    print('Run directory:',run_dir)
+    resolved=resolve_runtime(a.device,a.precision)
+    print('Run directory:',run_dir); print(f'Resolved device: {resolved.device.type}'); print(f'Resolved precision: {resolved.precision}'); print(f'Effective batch: {a.micro_batch*a.accumulation}'); print(f'Tokens per optimizer step: {a.micro_batch*a.accumulation*512}')
     for metric in metrics: print(metric)
 if __name__=="__main__": main()

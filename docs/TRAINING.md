@@ -83,6 +83,8 @@ Before launching, export and pack the full train/validation artifacts, train the
 
 `device: auto` resolves to CUDA when available, otherwise CPU. `precision: auto` resolves to FP32 on CPU, BF16 on CUDA only when PyTorch reports support, otherwise FP16. CUDA FP16 uses `torch.autocast` plus `torch.amp.GradScaler`; BF16 uses autocast without scaling. Accumulated micro-losses are divided by accumulation steps before backward; clipping occurs after unscaling and scheduler steps occur once per optimizer step.
 
+On an Apple Silicon Mac with MPS available, `device: auto` resolves to `mps` after CUDA and before CPU. MPS uses FP32 in this project for predictable local development behavior; it is useful for smoke/development runs but is not a substitute for CUDA AMP qualification.
+
 Run the 100-step qualification configuration before the full baseline. It must show a CUDA device, resolved precision, finite loss, checkpoints, token throughput, peak VRAM, and correct token accounting. On OOM, stop: start a **new** run with `4×8` replaced by `2×16` or `1×32` to retain effective batch 32. Never silently apply this fallback.
 
 For the full baseline: `target_training_tokens=200,000,000`, `planned_optimizer_steps=12,208`, and `planned_training_tokens=200,015,872`. Actual tokens are counted from completed micro-batches and recorded in metrics/checkpoints; they are never substituted with the target.

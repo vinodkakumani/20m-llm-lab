@@ -12,5 +12,5 @@ class TrainingTests(unittest.TestCase):
    prepare_packed_split(["one two three four five six seven"]*4,tok,4,root/'tokens.bin')
    # Use a tiny independent model configuration rather than the 20M CPU model.
    config=root/'model.yaml'; config.write_text('model:\n  vocab_size: 32\n  d_model: 8\n  n_layers: 1\n  n_heads: 2\n  head_dim: 4\n  ffn_dim: 16\n  context_length: 4\nparameter_count:\n  target: 1\n  tolerance: 999999\n')
-   metrics=run_smoke_training(config,root/'tokens.bin',SmokeTrainingConfig(max_steps=2))
-   self.assertEqual(len(metrics),2); self.assertTrue(all(m.loss>0 and m.tokens_per_second>0 for m in metrics))
+   metrics=run_smoke_training(config,root/'tokens.bin',SmokeTrainingConfig(max_steps=2,micro_batch_size=2,gradient_accumulation_steps=2))
+   self.assertEqual(len(metrics),2); self.assertTrue(all(m.loss>0 and m.tokens_per_second>0 for m in metrics)); self.assertEqual(metrics[-1].tokens_processed,32)
